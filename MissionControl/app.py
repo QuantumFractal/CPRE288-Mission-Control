@@ -1,7 +1,20 @@
 # Main application for Mission Control
 
-import serial
+import serial, os
 
-ser = serial.Serial(port='COM8', baudrate=9600, stopbits=serial.STOPBITS_TWO)
+incoming_COM = 'COM4'
+outgoing_COM = 'COM8'
 
-ser.write("Hello!")
+# Vortex Settings
+vCOM = COM2
+vBaud = 38600
+vBits = serial.STOPBITS_TWO
+
+#Setup serial port
+ser = serial.Serial(port=outgoing_COM, baudrate=9600, stopbits=serial.STOPBITS_TWO)
+
+
+is_running = True
+
+while(is_running):
+	ser.write(ser.read())
