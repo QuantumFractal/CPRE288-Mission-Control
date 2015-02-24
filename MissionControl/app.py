@@ -4,7 +4,7 @@ import serial, os
 import sys
 
 #setup sdl
-os.environ["PYSDL2_DLL_PATH"] = "E:\Programming\Python\CPRE288-Mission-Control\env"
+os.environ["PYSDL2_DLL_PATH"] = "..\env"
 
 import sdl2, sdl2.ext
 
@@ -74,6 +74,12 @@ def run():
 		if sdl2.SDL_GameControllerGetButton(joystick, 12):
 			sprite.y+=5
 			ser.write("d")
+
+		states = sdl2.SDL_GetKeyboardState(None)
+		
+		for state in states:
+			if state is sdl2.SDL_SCANCODE_A:
+				print state
 
 
 		events = sdl2.ext.get_events()
