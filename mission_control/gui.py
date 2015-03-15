@@ -75,8 +75,7 @@ def run():
                                          fontmanager=elite_font)
     else:
         print("Using software rendering")
-        factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
-
+        factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE, fontmanager=elite_font)
 
     uifactory = sdl2.ext.UIFactory(factory)
 
@@ -123,7 +122,9 @@ def run():
 
         # Render all user interface elements on the window.
         ds4.update()
-        render(sprites, renderer)
+        sdl2.ext.fill(spriterenderer.surface, BLACK)
+        spriterenderer.render(sprites)
+        #render(sprites, renderer)
 
     sdl2.ext.quit()
     return 0

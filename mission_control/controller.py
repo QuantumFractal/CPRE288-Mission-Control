@@ -9,6 +9,7 @@ os.environ["PYSDL2_DLL_PATH"] = "..\env"
 
 from sdl2 import *
 import sdl2.ext
+import sdl2.sdlgfx as sdlgfx
 
 
 class Controller():
@@ -148,6 +149,8 @@ class ControllerGUI():
         self.sticks['right'][0] = self.map_stick(2,3)
         self.sticks['right'][1] = self.map_stick(2,3,gui=True)
 
+        test_sprite = self.stick_sprites['l_trigger']
+        test_sprite.surface = sdlgfx.zoomSurface(test_sprite.surface, 5, 5, 1)
 
     def rumble(self, intensity, length_ms):
         SDL_HapticRumblePlay(self.haptics, intensity, length_ms)
