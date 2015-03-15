@@ -1,11 +1,15 @@
 """User interface examples."""
-import sys, os
+import sys, os, copy
 
 #setup sdl
 os.environ["PYSDL2_DLL_PATH"] = "..\env"
 
 from sdl2 import *
 import sdl2.ext
+from controller import *
+
+WIDTH = 800
+HEIGHT = 600
 
 # Define some global color constants
 WHITE = sdl2.ext.Color(255, 255, 255)
@@ -16,7 +20,8 @@ BLACK = sdl2.ext.Color(0, 0, 0)
 
 # A callback for the Button.motion event.
 def onmotion(button, event):
-    print("Mouse moves over the button!")
+    #print("Mouse moves over the button!")
+    pass
 
 
 # A callback for the Button.click event.
@@ -53,7 +58,9 @@ def run():
     # You know those from the helloworld.py example.
     # Initialize the video subsystem, create a window and make it visible.
     sdl2.ext.init()
-    window = sdl2.ext.Window("Mission Control", size=(800, 600))
+    SDL_Init(SDL_INIT_GAMECONTROLLER)
+        
+    window = sdl2.ext.Window("Mission Control", size=(WIDTH, HEIGHT))
 
     # Create a resource, so we have easy access to the example images.
     RESOURCES = sdl2.ext.Resources(__file__, "resources")
@@ -61,11 +68,6 @@ def run():
     elite_font = sdl2.ext.FontManager('resources/eurostile.ttf')
     window.show()
 
-    # Create a sprite factory that allows us to create visible 2D elements
-    # easily. Depending on what the user chosses, we either create a factory
-    # that supports hardware-accelerated sprites or software-based ones.
-    # The hardware-accelerated SpriteFactory requres a rendering context
-    # (or SDL_Renderer), which will create the underlying textures for us.
     if "-hardware" in sys.argv:
         print("Using hardware acceleration")
         renderer = sdl2.ext.Renderer(window)
@@ -75,55 +77,38 @@ def run():
         print("Using software rendering")
         factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
 
-    # Create a UI factory, which will handle several defaults for
-    # us. Also, the UIFactory can utilises software-based UI elements as
-    # well as hardware-accelerated ones; this allows us to keep the UI
-    # creation code clean.
+
     uifactory = sdl2.ext.UIFactory(factory)
 
     label = factory.from_text('Mission Control', size=40)
+    label.position = WIDTH/2-label.size[0]/2 , 0
     #label = uifactory.from_text(sdl2.ext.BUTTON, 'Mission Control')
 
 
-    # Create a simple Button sprite, which reacts on mouse movements and
-    # button presses and fill it with a white color. All UI elements
-    # inherit directly from the TextureSprite (for TEXTURE) or SoftwareSprite
-    # (for SOFTWARE), so everything you can do with those classes is also
-    # possible for the UI elements.
     button = uifactory.from_image(sdl2.ext.BUTTON, RESOURCES.get_path("button.bmp"))
     button.position = 50, 50
-    button.scale = 20
 
-    # Create a CheckButton sprite. The CheckButton is a specialised
-    # Button, which can switch its state, identified by the 'checked'
-    # attribute by clicking.
+
     checkbutton = uifactory.from_image(sdl2.ext.CHECKBUTTON, 
                                         RESOURCES.get_path("button_unselected.png"))
     checkbutton.position = 200, 200
-    checkbutton.size = (20,20)
 
-    # Bind some actions to the button's event handlers. Whenever a click
-    # (combination of a mouse button press and mouse button release), the
-    # onclick() function will be called.
-    # Whenever the mouse moves around in the area occupied by the button, the
-    # onmotion() function will be called.
-    # The event handlers receive the issuer of the event as first argument
-    # (the button is the issuer of that event) and the SDL event data as second
-    # argument for further processing, if necessary.
     button.click += onclick
     button.motion += onmotion
-
     checkbutton.click += oncheck
     checkbutton.factory = factory
 
-    # Since all gui elements are sprites, we can use the
-    # SpriteRenderSystem class, we learned about in helloworld.py, to
-    # draw them on the Window.
+
+    ds4 = ControllerGUI(factory, 240, 300)
+
+    ds4.update()
+
     spriterenderer = factory.create_sprite_render_system(window)
 
-    # Create a new UIProcessor, which will handle the user input events
-    # and pass them on to the relevant user interface elements.
     uiprocessor = sdl2.ext.UIProcessor()
+
+    sprites = []
+    sprites = (label, button, checkbutton) + tuple(ds4.sprites)
 
     running = True
     while running:
@@ -137,7 +122,8 @@ def run():
             uiprocessor.dispatch([button, checkbutton], event)
 
         # Render all user interface elements on the window.
-        render((button, label, checkbutton), renderer)
+        ds4.update()
+        render(sprites, renderer)
 
     sdl2.ext.quit()
     return 0
@@ -153,7 +139,8 @@ def render(sprites, renderer):
         r.y = int(sprite.y)
         r.w, r.h = sprite.size
 
-        dorender(renderer.renderer, sprite.texture, None, r)
+        if not sprite.hidden:
+            dorender(renderer.renderer, sprite.texture, None, r)
 
     renderer.present()
 
