@@ -1,0 +1,8 @@
+
+message depth_data{
+    repeated uint32 depth_array = 3;
+}
+
+message depth{
+    required int32 depth = 2;
+}
