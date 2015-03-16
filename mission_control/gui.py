@@ -63,7 +63,7 @@ def run():
     SDL_Init(SDL_INIT_GAMECONTROLLER)
     SDL_Init(SDL_RENDERER_PRESENTVSYNC)
 
-    fps_timer = Timer(30)
+    fps_timer = Timer(60)
     fps_counter = Speedometer()
 
     window = sdl2.ext.Window("Mission Control", size=(WIDTH, HEIGHT))
@@ -105,8 +105,8 @@ def run():
     checkbutton.factory = factory
 
 
-    ds4 = ControllerGUI(factory, 240, 300)
-
+    ds4 = ControllerGUI(factory, 240, 450)
+    print SDL_GameControllerName(ds4.controller)
     ds4.update()
 
     spriterenderer = factory.create_sprite_render_system(window)
@@ -114,7 +114,7 @@ def run():
     uiprocessor = sdl2.ext.UIProcessor()
 
     sprites = []
-    sprites = (label, button, checkbutton) + tuple(ds4.sprites)
+    sprites = (label, checkbutton) + tuple(ds4.sprites)
 
     running = True
     while running:

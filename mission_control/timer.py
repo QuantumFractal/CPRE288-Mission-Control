@@ -9,6 +9,7 @@ class Timer:
         if fps == 0: 
             self.tick = self._blank
             return
+        self.ticks = 0
         self.wait = 1000/fps
         self.nt = SDL_GetTicks()
         SDL_Delay(0)
@@ -24,6 +25,7 @@ class Timer:
             self.nt+=self.wait
         else: 
             self.nt = SDL_GetTicks()+self.wait
+        self.ticks += 1
 
 class Speedometer:
     """A timer replacement that returns out FPS once a second.
