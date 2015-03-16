@@ -7,9 +7,11 @@ os.environ["PYSDL2_DLL_PATH"] = "..\env"
 from sdl2 import *
 import sdl2.ext
 from controller import *
+from timer import *
 
 WIDTH = 800
 HEIGHT = 600
+
 
 # Define some global color constants
 WHITE = sdl2.ext.Color(255, 255, 255)
@@ -45,12 +47,12 @@ def oncheck(button, event):
     temp_file = sdl2.ext.Resources(__file__, "resources")
     if button.checked:
         tmpsprite = button.factory.from_image(temp_file.get_path("button_selected.png"))
-        button.texture, tmpsprite.texture = tmpsprite.texture, button.texture
+        button.surface, tmpsprite.surface = tmpsprite.surface, button.surface
         del tmpsprite
 
     else:
         tmpsprite = button.factory.from_image(temp_file.get_path("button_unselected.png"))
-        button.texture, tmpsprite.texture = tmpsprite.texture, button.texture
+        button.surface, tmpsprite.surface = tmpsprite.surface, button.surface
         del tmpsprite
 
 
@@ -59,12 +61,18 @@ def run():
     # Initialize the video subsystem, create a window and make it visible.
     sdl2.ext.init()
     SDL_Init(SDL_INIT_GAMECONTROLLER)
-        
+    SDL_Init(SDL_RENDERER_PRESENTVSYNC)
+
+    fps_timer = Timer(30)
+    fps_counter = Speedometer()
+
     window = sdl2.ext.Window("Mission Control", size=(WIDTH, HEIGHT))
+    
 
     # Create a resource, so we have easy access to the example images.
     RESOURCES = sdl2.ext.Resources(__file__, "resources")
 
+    SDL_SetWindowIcon(window.window, sdl2.ext.image.load_image(RESOURCES.get_path('icon.png')))
     elite_font = sdl2.ext.FontManager('resources/eurostile.ttf')
     window.show()
 
@@ -82,7 +90,6 @@ def run():
     label = factory.from_text('Mission Control', size=40)
     label.position = WIDTH/2-label.size[0]/2 , 0
     #label = uifactory.from_text(sdl2.ext.BUTTON, 'Mission Control')
-
 
     button = uifactory.from_image(sdl2.ext.BUTTON, RESOURCES.get_path("button.bmp"))
     button.position = 50, 50
@@ -120,11 +127,14 @@ def run():
             # the user interface logic.
             uiprocessor.dispatch([button, checkbutton], event)
 
+
         # Render all user interface elements on the window.
         ds4.update()
         sdl2.ext.fill(spriterenderer.surface, BLACK)
         spriterenderer.render(sprites)
         #render(sprites, renderer)
+
+        fps_timer.tick()
 
     sdl2.ext.quit()
     return 0

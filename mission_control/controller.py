@@ -50,7 +50,7 @@ class ControllerGUI():
         self.y = y
         self.deadzone = 5000
         self.top = 32767
-        self.gui_stick_limit = 13
+        self.gui_stick_limit = 9
 
         self.ds4 = factory.from_image(RESOURCES.get_path("ds4.png"))
 
