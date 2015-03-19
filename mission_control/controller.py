@@ -120,8 +120,8 @@ class ControllerGUI():
 
         ss['left'].position = self.x+sp['left'][1][0]+100 , self.y+sp['left'][1][1]+94
         ss['right'].position = self.x+sp['right'][1][0]+195 , self.y+sp['right'][1][1]+94
-        ss['l_trigger'].position = self.x+63, self.y+int(sp['l_trigger'][1])-28
-        ss['r_trigger'].position = self.x+245, self.y+int(sp['r_trigger'][1])-28
+        ss['l_trigger'].position = self.x+63, self.y+int(sp['l_trigger'][1])-33
+        ss['r_trigger'].position = self.x+245, self.y+int(sp['r_trigger'][1])-33
 
         for button in self.button_sprites:
             sprites.append(self.button_sprites[button])

@@ -51,6 +51,10 @@ def run():
     SDL_Init(SDL_INIT_GAMECONTROLLER)
     SDL_Init(SDL_RENDERER_PRESENTVSYNC)
 
+    if SDL_NumJoysticks() == 0:
+        print 'DS4 Not connected!\nTry again!'
+        sys.exit()
+
     fps_timer = Timer(60)
     fps_counter = Speedometer()
 
