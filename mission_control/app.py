@@ -9,8 +9,10 @@ from math import sin, fabs
 import sdl2.ext
 
 import gui
+from radar import *
 from controller import *
 from timer import *
+import random
 
 WIDTH = 1024   
 HEIGHT = 768
@@ -34,14 +36,14 @@ def init_gui(factory):
 
     checkbutton = uifactory.from_image(sdl2.ext.CHECKBUTTON, 
                                         RESOURCES.get_path("button_unselected.png"))
-    checkbutton.position = 200, 200
+    checkbutton.position = 125, 480
 
     button.click += gui.onclick
     button.motion += gui.onmotion
     checkbutton.click += gui.oncheck
     checkbutton.factory = factory
 
-    return [button, checkbutton]
+    return [checkbutton]
 
 
 def run():
@@ -86,6 +88,9 @@ def run():
     print SDL_GameControllerName(ds4.controller)
     ds4.update()
 
+    radar = Radar(renderer, x=WIDTH/2-400, y=40, h=400)
+    radar.set_data(random.sample(range(50,150), 90))
+
     spriterenderer = factory.create_sprite_render_system(window)
     uiprocessor = sdl2.ext.UIProcessor()
 
@@ -95,8 +100,11 @@ def run():
     ui_elements = init_gui(factory)
     sprites = tuple(ui_elements + ds4.sprites + sprites)
 
+
+    """ Main Render Loop """
     running = True
     while running:
+        renderer.clear(BLACK)
         events = sdl2.ext.get_events()
         for event in events:
             if event.type == sdl2.SDL_QUIT:
@@ -114,7 +122,8 @@ def run():
 
         # Render all user interface elements on the window.
         ds4.update()
-        sdl2.ext.fill(spriterenderer.surface, BLACK)
+        radar.draw()
+        #sdl2.ext.fill(spriterenderer.surface, BLACK)
         spriterenderer.render(sprites)
         #render(sprites, renderer)
 

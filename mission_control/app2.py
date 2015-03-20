@@ -28,7 +28,6 @@ GREEN = sdl2.ext.Color(0, 255, 0)
 BLACK = sdl2.ext.Color(0, 0, 0)
 
 
-
 def run():
     # You know those from the helloworld.py example.
     # Initialize the video subsystem, create a window and make it visible.

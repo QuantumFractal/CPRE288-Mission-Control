@@ -47,14 +47,13 @@ def oncheck(button, event):
     temp_file = sdl2.ext.Resources(__file__, "resources")
     if button.checked:
         tmpsprite = button.factory.from_image(temp_file.get_path("button_selected.png"))
-        button.surface, tmpsprite.surface = tmpsprite.surface, button.surface
+        button.texture, tmpsprite.texture = tmpsprite.texture, button.texture
         del tmpsprite
 
     else:
         tmpsprite = button.factory.from_image(temp_file.get_path("button_unselected.png"))
-        button.surface, tmpsprite.surface = tmpsprite.surface, button.surface
+        button.texture, tmpsprite.texture = tmpsprite.texture, button.texture
         del tmpsprite
-
 
 def run():
     # You know those from the helloworld.py example.
