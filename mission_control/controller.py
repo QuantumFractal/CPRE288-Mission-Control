@@ -75,10 +75,14 @@ class ControllerGUI():
 
         self.buttons = {'square': False, 'cross': False, 
                         'triangle': False, 'circle': False,
+                        'dpad-up': False, 'dpad-down': False,
+                        'dpad-left': False, 'dpad-right': False,
                         'l_bumper': False, 'r_bumper': False}
 
         self.button_sprites = {'square':cp(button_sprite), 'cross':cp(button_sprite), 
                         'triangle':cp(button_sprite), 'circle':cp(button_sprite),
+                        'dpad-up':cp(button_sprite), 'dpad-down':cp(button_sprite),
+                        'dpad-left':cp(button_sprite), 'dpad-right':cp(button_sprite),
                         'l_bumper':cp(lbumper_sprite), 'r_bumper':cp(rbumper_sprite)}
 
         self.sticks = {'left': [(0,0),(0,0)], 'right': [(0,0),(0,0)], 
@@ -114,6 +118,10 @@ class ControllerGUI():
         bs['triangle'].position = self.x+245, self.y+35
         bs['l_bumper'].position = self.x+51, self.y+11
         bs['r_bumper'].position = self.x+232, self.y+12
+        bs['dpad-up'].position = self.x+58, self.y+36
+        bs['dpad-down'].position = self.x+58, self.y+76
+        bs['dpad-left'].position = self.x+38, self.y+56
+        bs['dpad-right'].position = self.x+78, self.y+56
 
         ss = self.stick_sprites
         sp = self.sticks
@@ -134,7 +142,6 @@ class ControllerGUI():
 
     def update_buttons(self):
         """ Button Layout
-
             cross: 0
             triangle: 3
             square: 2
@@ -143,10 +150,42 @@ class ControllerGUI():
             r_stick: 8
             r_bumper: 10
             l_bumper: 9
+            dpad-up: 11
+            dpad-down: 12
+            dpad-left: 13
+            dpad-right: 14
         """
         get_button = SDL_GameControllerGetButton
         bs = self.button_sprites
         b = self.buttons
+
+        if bool(get_button(self.controller, 11)):
+            bs['dpad-up'].hidden = False
+            b['dpad-up'] = True
+        else:
+            bs['dpad-up'].hidden = True
+            b['dpad-up'] = False
+        
+        if bool(get_button(self.controller, 12)):
+            bs['dpad-down'].hidden = False
+            b['dpad-down'] = True
+        else:
+            bs['dpad-down'].hidden = True
+            b['dpad-down'] = False
+
+        if bool(get_button(self.controller, 13)):
+            bs['dpad-left'].hidden = False
+            b['dpad-left'] = True
+        else:
+            bs['dpad-left'].hidden = True
+            b['dpad-left'] = False
+
+        if bool(get_button(self.controller, 14)):
+            bs['dpad-right'].hidden = False
+            b['dpad-right'] = True
+        else:
+            bs['dpad-right'].hidden = True
+            b['dpad-right'] = False
 
         if bool(get_button(self.controller, 9)):
             bs['l_bumper'].hidden = False
