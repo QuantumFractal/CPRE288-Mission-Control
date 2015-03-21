@@ -130,6 +130,7 @@ def run():
         spriterenderer.render(sprites)
         #render(sprites, renderer)
 
+        
 
         #fps_timer.tick()
 

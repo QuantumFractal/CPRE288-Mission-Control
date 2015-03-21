@@ -96,7 +96,7 @@ class Radar():
             xptr = (ctypes.c_short * len(points_x))(*points_x)
             yptr = (ctypes.c_short * len(points_x))(*points_y)
 
-            gfx.aapolygonRGBA(self.renderer, xptr, yptr, 91, *self.green.rgba )
+            gfx.polygonRGBA(self.renderer, xptr, yptr, 91, *self.green.rgba )
 
         points_x = []
         points_y = []
@@ -113,7 +113,7 @@ class Radar():
             xptr = (ctypes.c_short * len(points_x))(*points_x)
             yptr = (ctypes.c_short * len(points_x))(*points_y)
 
-            gfx.aapolygonRGBA(self.renderer, xptr, yptr, 91, *self.white.rgba )
+            gfx.polygonRGBA(self.renderer, xptr, yptr, 91, *self.white.rgba )
 
 
     def draw_grid(self):
