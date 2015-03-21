@@ -12,6 +12,7 @@ No flow control
 import serial
 import vortex_pb2
 import random
+import struct
 
 V_COM_IN = 'COM4'
 baud = 57600
@@ -19,20 +20,40 @@ bytesize = 8
 parity = 'None'
 read_timeout = 10
 
-port = serial.Serial(V_COM_IN, baudrate=baud, timeout=read_timeout, stopbits=serial.STOPBITS_TWO)
 
-print "Listening..."
+def run():
 
-bytes_to_read = int(port.readline())
-print 'Reading', bytes_to_read,'bytes'
+	port = serial.Serial(V_COM_IN, baudrate=baud, timeout=read_timeout, stopbits=serial.STOPBITS_TWO)
 
-data_string = port.read(bytes_to_read)
+	print "Listening..."
 
-print 'Read', len(data_string),'bytes'
-print data_string
+	# bytes_to_read = int(port.readline())
+	# print 'Reading', bytes_to_read,'bytes'
 
-sensor_data = vortex_pb2.sensor_data()
+	# data_string = port.read(bytes_to_read)
 
-sensor_data.ParseFromString(data_string)
+	# print 'Read', len(data_string),'bytes'
+	# print data_string
 
-print sensor_data.ir_data_array
+	#	sensor_data.ParseFromString(data_string)
+
+	sensor_data = get_message(port, vortex_pb2.sensor_data)
+
+
+	print sensor_data.ir_data_array
+
+
+def get_message(port, msgtype):
+    """ Read a message from a socket. msgtype is a subclass of
+        of protobuf Message.
+    """
+    len_buf = port.read(4)
+    msg_len = struct.unpack('>L', len_buf)[0]
+    msg_buf = port.read(msg_len)
+
+    msg = msgtype()
+    msg.ParseFromString(msg_buf)
+    return msg
+
+if __name__ == '__main__':
+	run()

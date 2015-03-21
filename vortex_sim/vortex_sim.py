@@ -29,18 +29,18 @@ def run():
         send_data.ir_data_array.append(num)
 
     print 'Sensor data: ',send_data.ir_data_array
-    
+
     data_string = send_data.SerializeToString()
 
     print 'Data Bytes:',len(data_string)
-    port.write(str(len(data_string))+'\n')
+    #port.write(str(len(data_string))+'\n')
+
+    send_message(port, send_data)
+
+    #bytes_written = port.write(data_string)
 
 
-
-    bytes_written = port.write(data_string)
-
-
-    print 'Sent', bytes_written,'bytes'
+    #print 'Sent', bytes_written,'bytes'
 
 
     #port.write(data_string)
