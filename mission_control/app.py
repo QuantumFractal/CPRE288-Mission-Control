@@ -89,7 +89,10 @@ def run():
     ds4.update()
 
     radar = Radar(renderer, x=WIDTH/2-400, y=40, h=400)
-    radar.set_data(random.sample(range(50,150), 90))
+
+    radar.set_data(random.sample(range(50,180), 90), sensor_type='sonar')
+    radar.set_data(random.sample(range(5,100), 90), sensor_type='ir')
+
 
     spriterenderer = factory.create_sprite_render_system(window)
     uiprocessor = sdl2.ext.UIProcessor()

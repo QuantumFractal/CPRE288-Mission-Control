@@ -19,14 +19,15 @@ class Radar():
         #SDL Semantics :/
         self.renderer = renderer.renderer
         self.sprites = []
-        self.data = None
+        self.data = {'sonar':[], 'ir':[]}
 
         self.x = x
         self.y = y
 
         self.pad = 20
-        self.steps = 8
-        self.points = [() for x in range(90)] 
+        self.steps = 6
+        self.sonar_points = [() for x in range(90)]
+        self.ir_points = [() for x in range(90)]
         
         self.w = h*2
         self.h = h+2*self.pad
@@ -43,8 +44,19 @@ class Radar():
         pass
 
 
-    def set_data(self, data):
-        points = self.points 
+    def set_data(self, data, sensor_type):
+        # Set data according to sensor_type
+        if sensor_type is 'sonar':
+            points = self.sonar_points
+            self.data['sonar'] = data
+
+        elif sensor_type is 'ir':
+            points = self.ir_points
+            self.data['ir'] = data
+
+        else:
+            return -1
+
         for n in range(len(points)):
             # N is our angle
             amplitude = self.map_value(data[n], 0, 200, 0, self.w/2-self.pad)
@@ -69,22 +81,39 @@ class Radar():
         points_y = []
 
         # Make points relative to our radar
-        for point in self.points:
-            points_x.append(point[0]+x+w/2)
-            points_y.append(-1*point[1]+y+h-2*pad)
+        if self.sonar_points[0] is not ():
+            for point in self.sonar_points:
+                points_x.append(point[0]+x+w/2)
+                points_y.append(-1*point[1]+y+h-2*pad)
 
-        # Add last point to make things look nice
-        points_x.append(x+w/2)
-        points_y.append(y+h-2*pad)
+            # Add last point to make things look nice
+            points_x.append(x+w/2)
+            points_y.append(y+h-2*pad)
 
+            # Do some fancy ctypes magic
+            #points_x , points_y = zip(*self.points)
 
-        # Do some fancy ctypes magic
-        #points_x , points_y = zip(*self.points)
+            xptr = (ctypes.c_short * len(points_x))(*points_x)
+            yptr = (ctypes.c_short * len(points_x))(*points_y)
 
-        xptr = (ctypes.c_short * len(points_x))(*points_x)
-        yptr = (ctypes.c_short * len(points_x))(*points_y)
+            gfx.aapolygonRGBA(self.renderer, xptr, yptr, 91, *self.green.rgba )
 
-        gfx.aapolygonRGBA(self.renderer, xptr, yptr, 91, *self.green.rgba )
+        points_x = []
+        points_y = []
+
+        # Do the same for ir points
+        if self.ir_points[0] is not ():
+            for point in self.ir_points:
+                points_x.append(point[0]+x+w/2)
+                points_y.append(-1*point[1]+y+h-2*pad)
+
+            points_x.append(x+w/2)
+            points_y.append(y+h-2*pad)
+
+            xptr = (ctypes.c_short * len(points_x))(*points_x)
+            yptr = (ctypes.c_short * len(points_x))(*points_y)
+
+            gfx.aapolygonRGBA(self.renderer, xptr, yptr, 91, *self.white.rgba )
 
 
     def draw_grid(self):
@@ -105,7 +134,9 @@ class Radar():
         #gfx.hlineRGBA(self.renderer, x, x+w, y+h-2*pad, *self.white.rgba)
         
         # Draw arcs / labels
-        for n in xrange(0, w/2-pad, (w/2-pad)/self.steps):
+        for n in xrange(0, self.steps+1):
+            n *= ((w/2-pad)/self.steps)
+            
             # Draw radar lines
             gfx.arcRGBA(self.renderer, x+w/2, y+h-2*pad, n, 185, -5, *self.orange.rgba)
 
@@ -120,7 +151,7 @@ class Radar():
             gfx.stringRGBA(self.renderer, mark_x, mark_y, str(literal_dist)+"cm", *self.orange.rgba)
 
         # Draw lines
-        for n in range(0, 181, 180/6):
+        for n in xrange(0, 181, 180/6):
             xpos = int((w/2-pad)*cos(radians(self.map_value(n,0,180,5,175))))
             ypos = -1*int((w/2-pad)*sin(radians(self.map_value(n,0,180,5,175))))
 
