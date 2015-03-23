@@ -7,6 +7,7 @@ os.environ["PYSDL2_DLL_PATH"] = "..\env"
 
 from sdl2 import *
 import sdl2.ext
+from random import randint
 import sdl2.sdlgfx as gfx
 import itertools
 from math import sin, cos, radians
@@ -24,7 +25,8 @@ text = gfx.stringRGBA
 white = sdl2.ext.Color(255,255,255)
 light_green = sdl2.ext.Color(144, 238, 144)
 red = sdl2.ext.Color(255, 0, 0)
-
+orange = sdl2.ext.Color(231, 144, 96)
+green = sdl2.ext.Color(0, 255, 0)
 
 class sim_obj():
 	def draw(self, renderer):
@@ -32,12 +34,11 @@ class sim_obj():
 
 
 class Vortex(sim_obj):
-	def __init__(self, pos=(0,0)):
-		self.x = pos[0]
-		self.y = pos[1]
+	def __init__(self, x, y):
+		self.y = y
+		self.x = x
 		self.rotation = 0
 		self.sensor_rotation = 0
-
 
 	def draw(self, renderer):
 		x = self.x
@@ -60,14 +61,100 @@ class Vortex(sim_obj):
 		# Draw sensor sweep
 		sensor_off_x = rnd(x+16*sin(radians(r)))
 		sensor_off_y = rnd(y-16*cos(radians(r)))
-		pie(renderer, sensor_off_x, sensor_off_y, 200, rnd(260+sr), rnd(0+sr-80), *light_green.rgba)
+		pie(renderer, sensor_off_x, sensor_off_y, 200, rnd(260+sr+r), rnd(0+sr+r-80), *light_green.rgba)
+
+	def update(self, ticks):
+		
+
+	def set_speed(self, speed):
+
+
+class GoalPost(sim_obj):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.radius = 7
+
+	def draw(self, renderer):
+		x = self.x
+		y = self.y
+		r = self.radius
+
+		circle(renderer, x, y, r, *green.rgba)
+
+class ObstacleField(sim_obj):
+	def __init__(self, game_area):
+		self.obstacles = []
+		self.area = game_area
+
+	def draw(self, renderer):
+		for obstacle in self.obstacles:
+			obstacle.draw(renderer)
+
+	def generate_obstacles(self, number):
+		min_x = self.area.x + 12
+		max_x = self.area.x + self.area.size - 12
+
+		min_y = self.area.y + 12
+		max_y = self.area.y + self.area.size - 12
+
+		for x in xrange(0,number):
+			self.obstacles.append(Obstacle(randint(min_x, max_x),
+											randint(min_y, max_y)))
+
+
+class GoalBox(sim_obj):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.size = 48
+		self.posts = [GoalPost(x-self.size,y-self.size), GoalPost(x+self.size,y-self.size),
+					  GoalPost(x+self.size, y+self.size), GoalPost(x-self.size, y+self.size)]
+
+	def draw(self, renderer):
+		x = self.x
+		y = self.y
+		size = self.size
+		for post in self.posts:
+			post.draw(renderer)
+
+		rectangle(renderer, x-size, y-size, x+size, y+size, *green.rgba)
+
+
+class Obstacle(sim_obj):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.radius = 12
+
+	def draw(self, renderer):
+		x = self.x
+		y = self.y
+		r = self.radius
+
+		circle(renderer, x, y, r, *orange.rgba)
+
+
+class GameArea(sim_obj):
+	def __init__(self, x , y):
+		self.x = x
+		self.y = y
+
+		self.size = 560
+
+	def draw(self, renderer):
+		x = self.x
+		y = self.y
+		size = self.size
+
+		rectangle(renderer, x, y, x+size, y+size, *red.rgba)
 
 
 class Dropoff(sim_obj):
-	def __init__(self, size, pos=(0,0)):
+	def __init__(self, pos=(0,0)):
 		self.x = pos[0]
 		self.y = pos[1]
-		self.size = size
+		self.size = 48
 
 	def draw(self, renderer):
 		x = self.x

@@ -70,22 +70,28 @@ def run():
     spriterenderer = factory.create_sprite_render_system(window)
     uiprocessor = sdl2.ext.UIProcessor()
 
-    ds4 = ControllerGUI(factory)
+    ds4 = ControllerGUI(factory, x=350, y=600)
+
 
     sprites = []
     sprites.append(label)
-    #sprites += tuple(ds4.sprites)
+    sprites += tuple(ds4.sprites)
 
     radar = Radar(renderer, x=WIDTH/2-400, y=40, h=400)
 
-    radar.set_data(random.sample(range(8,200), 90))
-    #radar.set_data([100 for x in range(90)])
+    radar.set_data([random.randint(8,200) for x in xrange(90)], 'ir')
+    #radar.set_data([100 for x in range(90)], 'sonar')
 
 
-    renderer.blendmode = SDL_BLENDMODE_ADD
+    range_val = 100
+    last_range = range_val
+    ticks = 0
 
     running = True
     while running:
+
+        if ticks % 100 == 0:
+            radar.set_data([random.randint(fabs(108-range_val), 100+range_val) for x in xrange(90)], 'ir')
 
         renderer.clear(BLACK)
         events = sdl2.ext.get_events()
@@ -104,7 +110,14 @@ def run():
 
 
         # Render all user interface elements on the window.
-       	#ds4.update()
+       	ds4.update()
+
+        if ds4.buttons['dpad-up']:
+            range_val += 10
+
+        if ds4.buttons['dpad-down']:
+            range_val -= 10
+
         #sdl2.ext.fill(spriterenderer.surface, BLACK)
         radar.draw()
         spriterenderer.render(sprites)
@@ -116,6 +129,8 @@ def run():
 
         fps_timer.tick()
 
+        last_range = range_val
+        ticks+=1
 
     sdl2.ext.quit()
     return 0

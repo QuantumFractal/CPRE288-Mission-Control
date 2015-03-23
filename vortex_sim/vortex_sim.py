@@ -44,7 +44,7 @@ def run():
     fps_timer = Timer(60)
     fps_counter = Speedometer()
 
-    window = sdl2.ext.Window("Mission Control", size=(WIDTH, HEIGHT))
+    window = sdl2.ext.Window(" ", size=(WIDTH, HEIGHT))
     RESOURCES = sdl2.ext.Resources(__file__, "resources")
 
     SDL_SetWindowIcon(window.window, sdl2.ext.image.load_image(RESOURCES.get_path('icon.png')))
@@ -78,14 +78,25 @@ def run():
     sprites = tuple(sprites)
 
 
-    vortex = sim.Vortex(pos=(300,300))
-    dropoff = sim.Dropoff(20, pos=(200,200))
+    vortex = sim.Vortex(400, 400)
+    vortex.rotation = -45
+    vortex.sensor_rotation = 60
 
-    shapes = (vortex, dropoff)
+    dropoff = sim.Dropoff(pos=(200,200))
+    area = sim.GameArea(20,20)
+    obstacle_gen = sim.ObstacleField(area)
+    obstacle_gen.generate_obstacles(10)
+
+    goal = sim.GoalBox(200, 200)
+    
+
+    shapes = (vortex, dropoff, area, goal, obstacle_gen)
 
     ticks = 0
+    seconds = 0
     """ Main Render Loop """
     running = True
+
     while running:
         renderer.clear(BLACK)
         events = sdl2.ext.get_events()
@@ -97,15 +108,12 @@ def run():
                 if event.key.keysym.sym == SDLK_ESCAPE:
                     running = False
                 break
-
             # Pass the SDL2 events to the UIProcessor, which takes care of
             # the user interface logic.
-            #uiprocessor.dispatch(ui_elements, event)
-
+            #uiprocessor.dispatch(ui_elements, event
 
         # Render all user interface elements on the window.
         #sdl2.ext.fill(spriterenderer.surface, BLACK)
-
         for shape in shapes:
             shape.draw(renderer.renderer)
         
@@ -116,6 +124,7 @@ def run():
         vortex.sensor_rotation = 90.0*sin(ticks/50.0)
 
         ticks += 1
+        running_ms += 16.666666
 
         fps_timer.tick()
 
