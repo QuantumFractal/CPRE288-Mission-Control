@@ -14,7 +14,7 @@ import vortex_pb2
 import random
 import struct
 
-V_COM_IN = 'COM4'
+V_COM_IN = 'COM6'
 baud = 57600
 bytesize = 8
 parity = 'None'
@@ -37,10 +37,12 @@ def run():
 
 	#	sensor_data.ParseFromString(data_string)
 
-	sensor_data = get_message(port, vortex_pb2.sensor_data)
+	print len(port.read(4))
+
+	#sensor_data = get_message(port, vortex_pb2.sensor_data)
 
 
-	print sensor_data.ir_data_array
+	print sensor_data.ir_data_array[0]
 
 
 def get_message(port, msgtype):

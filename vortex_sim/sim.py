@@ -64,10 +64,7 @@ class Vortex(sim_obj):
 		pie(renderer, sensor_off_x, sensor_off_y, 200, rnd(260+sr+r), rnd(0+sr+r-80), *light_green.rgba)
 
 	def update(self, ticks):
-		
-
-	def set_speed(self, speed):
-
+		pass
 
 class GoalPost(sim_obj):
 	def __init__(self, x, y):

@@ -21,6 +21,9 @@ class Radar():
         self.sprites = []
         self.data = {'sonar':[], 'ir':[]}
 
+        self.ir_visible = True
+        self.sonar_visible = True
+
         self.x = x
         self.y = y
 
@@ -45,7 +48,12 @@ class Radar():
 
 
     def set_data(self, data, sensor_type):
-        # Set data according to sensor_type
+        # Don't do anything if the sensor data
+        # is not populated
+        if len(data) == 0:
+            return; 
+
+        # Set data according to sensor_type     
         if sensor_type is 'sonar':
             points = self.sonar_points
             self.data['sonar'] = data
@@ -81,7 +89,7 @@ class Radar():
         points_y = []
 
         # Make points relative to our radar
-        if self.sonar_points[0] is not ():
+        if self.sonar_points[0] is not () and self.sonar_visible:
             for point in self.sonar_points:
                 points_x.append(point[0]+x+w/2)
                 points_y.append(-1*point[1]+y+h-2*pad)
@@ -102,7 +110,7 @@ class Radar():
         points_y = []
 
         # Do the same for ir points
-        if self.ir_points[0] is not ():
+        if self.ir_points[0] is not () and self.ir_visible:
             for point in self.ir_points:
                 points_x.append(point[0]+x+w/2)
                 points_y.append(-1*point[1]+y+h-2*pad)

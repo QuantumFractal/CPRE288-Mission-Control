@@ -83,7 +83,7 @@ def run():
     #radar.set_data([100 for x in range(90)], 'sonar')
 
 
-    range_val = 100
+    range_val = 20
     last_range = range_val
     ticks = 0
 
@@ -113,10 +113,10 @@ def run():
        	ds4.update()
 
         if ds4.buttons['dpad-up']:
-            range_val += 10
+            range_val += 1
 
         if ds4.buttons['dpad-down']:
-            range_val -= 10
+            range_val -= 1
 
         #sdl2.ext.fill(spriterenderer.surface, BLACK)
         radar.draw()

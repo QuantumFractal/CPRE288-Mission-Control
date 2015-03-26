@@ -96,7 +96,6 @@ def run():
     seconds = 0
     """ Main Render Loop """
     running = True
-
     while running:
         renderer.clear(BLACK)
         events = sdl2.ext.get_events()
@@ -122,10 +121,9 @@ def run():
 
         #vortex.rotation += 1
         vortex.sensor_rotation = 90.0*sin(ticks/50.0)
+        #vortex.x += 2
 
         ticks += 1
-        running_ms += 16.666666
-
         fps_timer.tick()
 
 

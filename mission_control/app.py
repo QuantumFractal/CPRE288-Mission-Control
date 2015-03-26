@@ -9,10 +9,15 @@ from math import sin, fabs
 import sdl2.ext
 
 import gui
+import comms
 from radar import *
 from controller import *
 from timer import *
 import random
+
+import serial
+import vortex_pb2
+import struct
 
 WIDTH = 1024   
 HEIGHT = 768
@@ -25,6 +30,13 @@ RED = sdl2.ext.Color(255, 0, 0)
 GREEN = sdl2.ext.Color(0, 255, 0)
 BLACK = sdl2.ext.Color(0, 0, 0)
 
+#COM PORTS
+V_COM_IN = 'COM6'
+baud = 57600
+bytesize = 8
+parity = 'None'
+read_timeout = 0
+
 
 def init_gui(factory):
     RESOURCES = sdl2.ext.Resources(__file__, "resources")
@@ -34,16 +46,23 @@ def init_gui(factory):
     button.position = 50, 50
 
 
-    checkbutton = uifactory.from_image(sdl2.ext.CHECKBUTTON, 
+    ir_off = uifactory.from_image(sdl2.ext.CHECKBUTTON, 
                                         RESOURCES.get_path("button_unselected.png"))
-    checkbutton.position = 125, 480
+    ir_off.position = 240, 480
+
+    sonar_off = uifactory.from_image(sdl2.ext.CHECKBUTTON, 
+                                        RESOURCES.get_path("button_unselected.png"))
+    sonar_off.position = 450, 480
 
     button.click += gui.onclick
     button.motion += gui.onmotion
-    checkbutton.click += gui.oncheck
-    checkbutton.factory = factory
+    ir_off.click += gui.oncheck
+    ir_off.factory = factory
 
-    return [checkbutton]
+    sonar_off.click += gui.oncheck
+    sonar_off.factory = factory
+
+    return [ir_off, sonar_off]
 
 
 def run():
@@ -55,7 +74,7 @@ def run():
 
     if SDL_NumJoysticks() == 0:
         print 'DS4 Not connected!\nTry again!'
-        sys.exit()
+        #sys.exit()
 
     fps_timer = Timer(60)
     fps_counter = Speedometer()
@@ -69,14 +88,12 @@ def run():
     
     window.show()
 
-    if "-hardware" in sys.argv:
-        print("Using hardware acceleration")
-        renderer = sdl2.ext.Renderer(window)
-        factory = sdl2.ext.SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer,
-                                         fontmanager=elite_font)
-    else:
-        print("Using software rendering")
-        factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE, fontmanager=elite_font)
+    
+    print("Using hardware acceleration")
+    renderer = sdl2.ext.Renderer(window)
+    factory = sdl2.ext.SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer,
+                                     fontmanager=elite_font)
+    
 
     if "-fullscreen" in sys.argv:
         SDL_SetWindowFullscreen(window.window, SDL_WINDOW_FULLSCREEN)
@@ -84,25 +101,33 @@ def run():
     label = factory.from_text('Mission Control', size=40)
     label.position = WIDTH/2-label.size[0]/2 , 0
 
+    sonar_button_label = factory.from_text('Sonar Data Toggle', size=16)
+    sonar_button_label.position = 115, 487
+
+    ir_button_label = factory.from_text('IR Data Toggle', size=16)
+    ir_button_label.position = 350, 487
+
     ds4 = ControllerGUI(factory, WIDTH/2-330/2 , 610)
     print SDL_GameControllerName(ds4.controller)
     ds4.update()
 
     radar = Radar(renderer, x=WIDTH/2-400, y=40, h=400)
 
-    radar.set_data(random.sample(range(50,180), 90), sensor_type='sonar')
-    radar.set_data(random.sample(range(5,100), 90), sensor_type='ir')
-
+    range_val = 20
+    radar.set_data([random.randint(fabs(108-range_val), 100+range_val) for x in xrange(90)], sensor_type='sonar')
+    radar.set_data([random.randint(fabs(108-range_val), 100+range_val) for x in xrange(90)], sensor_type='ir')
 
     spriterenderer = factory.create_sprite_render_system(window)
     uiprocessor = sdl2.ext.UIProcessor()
 
     sprites = []
-    sprites.append(label)
+    sprites.extend([label, ir_button_label, sonar_button_label])
 
     ui_elements = init_gui(factory)
     sprites = tuple(ui_elements + ds4.sprites + sprites)
 
+    port = serial.Serial(V_COM_IN, baudrate=baud, timeout=read_timeout, stopbits=serial.STOPBITS_TWO)
+    SDL_SetWindowTitle(window.window, "Connected!")
 
     """ Main Render Loop """
     running = True
@@ -126,13 +151,23 @@ def run():
         # Render all user interface elements on the window.
         ds4.update()
         radar.draw()
+
+        data_message = comms.get_message(port, vortex_pb2.sensor_data)
+        if data_message is not None:
+            #data_message.sonar_data_array
+            radar.set_data(data_message.ir_data_array, sensor_type='ir')
+            radar.set_data(data_message.sonar_data_array, sensor_type='sonar')
+
+        radar.ir_visible = ui_elements[1].checked
+        radar.sonar_visible = ui_elements[0].checked
+
         #sdl2.ext.fill(spriterenderer.surface, BLACK)
         spriterenderer.render(sprites)
         #render(sprites, renderer)
 
         
 
-        #fps_timer.tick()
+        fps_timer.tick()
 
 
     sdl2.ext.quit()
