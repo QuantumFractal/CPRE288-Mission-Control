@@ -20,9 +20,11 @@ class Radar():
         self.renderer = renderer.renderer
         self.sprites = []
         self.data = {'sonar':[], 'ir':[]}
+        self.objects = []
 
         self.ir_visible = True
         self.sonar_visible = True
+        self.objects_visible = True
 
         self.x = x
         self.y = y
@@ -37,6 +39,7 @@ class Radar():
         self.sensor_max = 200 # In CM
 
         self.dark_orange = sdl2.ext.Color(59, 42, 14)
+        self.red = sdl2.ext.Color(255,0,0)
         self.orange = sdl2.ext.Color(212, 104, 45)
         self.white = sdl2.ext.Color(200, 200, 200)
         self.green = sdl2.ext.Color(0, 255, 0)
@@ -46,6 +49,13 @@ class Radar():
     def update(self):
         pass
 
+    def add_obstacle(self, distance, angle, radius):
+
+        new_object = {'distance':distance, 'angle':angle, 'radius':radius}
+        self.objects.append(new_object)
+
+    def clear_obstacles(self):
+        self.objects = []
 
     def set_data(self, data, sensor_type):
         # Don't do anything if the sensor data
@@ -123,6 +133,11 @@ class Radar():
 
             gfx.polygonRGBA(self.renderer, xptr, yptr, 91, *self.white.rgba )
 
+        if len(self.objects) != 0 and self.objects_visible:
+            for obstacle in self.objects:
+                xpos = obstacle['distance']*cos(radians(obstacle['angle']))+x+w/2
+                ypos = -1*obstacle['distance']*sin(radians(obstacle['angle']))+y+h-2*pad
+                gfx.filledCircleRGBA(self.renderer, int(xpos), int(ypos), int(obstacle['radius']), *self.red.rgba)
 
     def draw_grid(self):
         #gfx.circleRGBA(self.renderer, 400, 400 , 100, *self.green.rgba)
@@ -172,3 +187,4 @@ class Radar():
 
     def map_value(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+

@@ -14,7 +14,7 @@ import vortex_pb2
 import random
 import struct
 
-V_COM_IN = 'COM6'
+V_COM_IN = 'COM4'
 baud = 57600
 bytesize = 8
 parity = 'None'
@@ -25,7 +25,11 @@ def run():
 
 	port = serial.Serial(V_COM_IN, baudrate=baud, timeout=read_timeout, stopbits=serial.STOPBITS_TWO)
 
+	#port.flushInput()
 	print "Listening..."
+
+
+
 
 	# bytes_to_read = int(port.readline())
 	# print 'Reading', bytes_to_read,'bytes'
@@ -37,12 +41,12 @@ def run():
 
 	#	sensor_data.ParseFromString(data_string)
 
-	print len(port.read(4))
+	
+	sensor_data = get_message(port, vortex_pb2.sensor_data)
 
-	#sensor_data = get_message(port, vortex_pb2.sensor_data)
+	print sensor_data.timestamp
 
-
-	print sensor_data.ir_data_array[0]
+	#print sensor_data.ir_data_array[0]
 
 
 def get_message(port, msgtype):
@@ -50,7 +54,13 @@ def get_message(port, msgtype):
         of protobuf Message.
     """
     len_buf = port.read(4)
-    msg_len = struct.unpack('>L', len_buf)[0]
+    if len_buf is None:
+    	print 'NOTHING RECIEVED'
+    	
+    with open('out', 'wb') as outfile:
+    	outfile.write(len_buf)
+
+    msg_len = struct.unpack('>L',len_buf)[0]
     msg_buf = port.read(msg_len)
 
     msg = msgtype()

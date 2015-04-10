@@ -31,7 +31,7 @@ GREEN = sdl2.ext.Color(0, 255, 0)
 BLACK = sdl2.ext.Color(0, 0, 0)
 
 #COM PORTS
-V_COM_IN = 'COM6'
+V_COM_IN = 'COM8'
 baud = 57600
 bytesize = 8
 parity = 'None'

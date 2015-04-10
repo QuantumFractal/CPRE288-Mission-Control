@@ -39,36 +39,15 @@ def run():
     
     #random_data = [random.randint(fabs(108-range_val), 100+range_val) for x in xrange(90)]
     
-    data = [200 for x in xrange(90)]
+    range_val = 20
+    data = [random.randint(fabs(108-range_val), 100+range_val) for x in xrange(90)]
 
     add_object(data, 6.6, 60, 120) 
     add_object(data, 9.2, 70, 60)   
 
-    detect_objects(data, 1, 10)
-
-    send_data.sonar_data_array.extend(data)
-
-
-    #print 'Sensor data: ',send_data.ir_data_array
-
-    data_string = send_data.SerializeToString()
-
-
-    #print 'Data Bytes:',len(data_string)
-    #port.write(str(len(data_string))+'\n')
-
-    send_message(port, send_data)
-
-    #bytes_written = port.write(data_string)
-
-
-    #print 'Sent', bytes_written,'bytes'
-
-
-    #port.write(data_string)
-
-    # with open('out.txt', 'wb') as out_file:
-    #     out_file.write(data_string)
+    for x,pt in enumerate(data):
+        data_string = str(x)+','+str(pt)+','+str(pt-10)+'\n'
+        port.write(data_string)
 
 def detect_objects(array, range, slope):
     # Algorithm for detecting objects
