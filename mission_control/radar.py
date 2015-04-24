@@ -30,7 +30,7 @@ class Radar():
         self.y = y
 
         self.pad = 20
-        self.steps = 6
+        self.steps = 4
         self.sonar_points = [() for x in range(90)]
         self.ir_points = [() for x in range(90)]
         
@@ -38,7 +38,7 @@ class Radar():
         self.h = h+2*self.pad
         self.sensor_max = 200 # In CM
 
-        self.dark_orange = sdl2.ext.Color(59, 42, 14)
+        self.dark_orange = sdl2.ext.Color(59, 42, 14, 127)
         self.red = sdl2.ext.Color(255,0,0)
         self.orange = sdl2.ext.Color(212, 104, 45)
         self.white = sdl2.ext.Color(200, 200, 200)
@@ -188,3 +188,24 @@ class Radar():
     def map_value(self, x, in_min, in_max, out_min, out_max):
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
+
+def danger_angle(sensors, danger):
+    #sensors = [left, front_left, front_right, right]
+    # Cliff = 1 Bound = 2
+    search = 1 if danger else 2
+
+    left = sensors[0]
+    front_left = sensors[1]
+    front_right = sensors[2]
+    right = sensors[3]
+
+    if front_right == search and front_left == search:
+        return 0
+    if front_left == search:
+        return 12
+    if front_right == search:
+        return -12
+    if left == search:
+        return 63
+    if right == search:
+        return -63

@@ -13,7 +13,6 @@ import sim
 from timer import *
 import random
 import serial
-import vortex_pb2
 import random
 import struct
 
